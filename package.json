@@ -1,0 +1,30 @@
+{
+  "name": "payfast",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node %NODE_DEBUG_OPTION% index.js",
+    "cluster": "node %NODE_DEBUG_OPTION% cluster.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/es6-promise": "0.0.32",
+    "@types/joi": "^10.0.0",
+    "body-parser": "^1.15.2",
+    "compression": "^1.6.2",
+    "consign": "^0.1.2",
+    "es6-promise": "^4.0.5",
+    "express": "^4.14.0",
+    "helmet": "^3.4.0",
+    "joi": "^10.1.0",
+    "mysql": "^2.12.0",
+    "typings": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^6.0.56",
+    "typescript": "^2.1.4"
+  }
+}
