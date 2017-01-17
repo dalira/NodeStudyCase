@@ -1,5 +1,4 @@
 import {Router, Request, Response, NextFunction} from "express";
-import {ParsedAsJson} from "body-parser";
 import {PagamentoService} from "../service/PagamentoService";
 import {PagamentoValidator} from "../validation/PagamentoValidator";
 import {ValidationError} from "joi";
@@ -8,8 +7,7 @@ import {Pagamento} from "../models/Pagamento";
 import {RestQueryInterpreter} from "../utils/rest/RestQueryInterpreter";
 import {Page} from "../utils/pagination/Page";
 import {RestQuery} from "../utils/rest/RestQuery";
-import Env from "../utils/env/Env";
-import * as url from "url";
+import Paginator from "../utils/pagination/Paginator";
 
 class PagamentoRouter {
 
@@ -56,34 +54,13 @@ class PagamentoRouter {
                 [page.body, page.totalCount] = values;
                 return page;
             })
-            .then((page: Page<Pagamento>) => {
-
-                let links = {};
-
-                if (page.hasNext()) {
-                    let nextPageUrl: url.Url = url.parse(req.originalUrl, true);
-                    nextPageUrl.search = null;
-                    nextPageUrl.query._offset = nextPageUrl.query._offset ? nextPageUrl.query._offset++ : 2;
-                    links['next'] = url.resolve(url.format(Env.APLICATION_BASE_PATH), url.format(nextPageUrl));;
-                }
-
-                if (page.hasPrevious()) {
-                    let prevPageUrl: url.Url = url.parse(req.originalUrl, true);
-                    prevPageUrl.search = null;
-                    prevPageUrl.query._offset = prevPageUrl.query._offset--;
-                    links['previous'] = url.resolve(url.format(Env.APLICATION_BASE_PATH), url.format(prevPageUrl));
-                }
-
-                res
-                    .links(links) //Monta os links
-                    .json(page.body); //Devolve os pagamentos
-            })
+            .then((page: Page<Pagamento>) => Paginator.buildPaginatedResponse(req, res, page))
             .catch((err) => next(err));
     }
 
     private obterPagamentoById(req: Request, res: Response, next: NextFunction): void {
         IdentificacaoValidator.assert(req.params["id"])
-            .then((id: Number) => this.service.obterPagamentoById(id))
+            .then((id: string) => this.service.obterPagamentoById(id))
             .then((pagamento: Pagamento) => res.json(pagamento))
             .catch((err) => {
                 if (err.name === "ValidationError") {
@@ -93,7 +70,7 @@ class PagamentoRouter {
             });
     }
 
-    private registrarPagamento(req: Request & ParsedAsJson, res: Response, next: NextFunction): void {
+    private registrarPagamento(req: Request, res: Response, next: NextFunction): void {
 
         PagamentoValidator.assertEntrance(req.body)
             .then((pagamento) => this.service.registrarPagamento(pagamento))

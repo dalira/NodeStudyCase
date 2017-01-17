@@ -28,7 +28,7 @@ export class PagamentoValidator {
     };
 
     private static readonly VALID_QUERY_FIELDS: string[] = [
-        'id', 'status', 'dataCriacao', 'valor'
+        '_id', 'status', 'dataCriacao', 'valor'
     ];
 
     static assertQuery(restQuery: RestQuery): Promise<RestQuery> {

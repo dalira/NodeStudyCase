@@ -40,7 +40,7 @@ var PagamentoValidator = (function () {
     return PagamentoValidator;
 }());
 PagamentoValidator.VALID_QUERY_FIELDS = [
-    'id', 'status', 'dataCriacao', 'valor'
+    '_id', 'status', 'dataCriacao', 'valor'
 ];
 exports.PagamentoValidator = PagamentoValidator;
 //# sourceMappingURL=PagamentoValidator.js.map

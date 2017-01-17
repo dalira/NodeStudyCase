@@ -1,86 +1,85 @@
-import * as mysql from "mysql";
+import * as mongoose from "mongoose";
+import {Schema, SchemaDefinition, Model, SchemaOptions, DocumentQuery} from "mongoose";
 import {Promise} from "es6-promise";
 import {Pagamento} from "../models/Pagamento";
-import {RowParser} from "../utils/query/RowParser";
-import {QueryRestriction, QueryLimit, QueryOffset} from "../utils/query/QueryRestriction";
-import {FieldRestriction, Limit, Offset, Restriction} from "../utils/restriction/Restriction";
+import {QueryRestriction} from "../utils/query/QueryRestriction";
 import {QueryRestrictionParser} from "../utils/query/QueryRestrictionParser";
+import {StatusPagamento} from "../models/StatusPagamento";
+
+let schemaDefinition: SchemaDefinition = {
+    status: {
+        type: String,
+        enum: StatusPagamento.values()
+    },
+    dataCriacao: {
+        type: Date,
+    },
+    valor: {
+        type: Number,
+        min: 0
+    }
+};
+
+let options: SchemaOptions = {
+    versionKey: false
+};
+
+let schema: Schema = new Schema(schemaDefinition, options);
+let model: Model<Pagamento> = mongoose.model<Pagamento>('Pagamento', schema);
 
 export class PagamentoDAO {
 
-    private _connection: mysql.Connection;
-
-    constructor(connection: mysql.Connection) {
-        this._connection = connection;
-    }
-
-    insereERecupera(registro: Pagamento): Promise<Pagamento> {
+    insereERecupera(pagamento: Pagamento): Promise<Pagamento> {
         return new Promise((resolve: (registro: Pagamento) => void, reject: (error: Error) => void) => {
 
-            this._connection.query<mysql.OkPacket>("insert into pagamento set ?",
-                registro,
-                (err, result) => {
-
-                    if (err) return reject(err);
-
-                    this.buscarPorId(result.insertId)
-                        .then((comp: Pagamento) => resolve(comp))
-                        .catch((err: Error) => reject(err));
+            model.create(pagamento)
+                .then((newPagamento: Pagamento) => {
+                    resolve(newPagamento);
+                })
+                .catch((err) => {
+                    reject(err);
                 });
+
         });
     }
 
-    buscarPorId(id: Number): Promise<Pagamento> {
+    buscarPorId(id: string): Promise<Pagamento> {
         return new Promise((resolve: (registro: Pagamento) => void, reject: (error: Error) => void) => {
-            this._connection.query<mysql.RowDataPacket[]>("select * from pagamento where id = ?", id, (err, result) => {
-                if (err) reject(err);
-
-                if (result.length == 0) {
-                    resolve(null);
-                }
-
-                resolve(RowParser.parse<Pagamento>(result[0]));
-            });
+            model.findById(id)
+                .then(resolve)
+                .catch(reject)
         });
     }
 
-    buscar(...queryRestrictions: QueryRestriction[]): Promise<Pagamento[]> {
+    buscar(...queryRestrictions: QueryRestriction<Pagamento>[]): Promise<Pagamento[]> {
         return new Promise((resolve: (pagamentos: Pagamento[]) => void, reject: (error: Error) => void) => {
 
-            let query: string = "select * from pagamento ";
+            let query: DocumentQuery<Pagamento[], Pagamento> = model.find();
+
             if (queryRestrictions && queryRestrictions.length) {
-                let whereCommand: string = " where 1 = 1 ";
-
-                let restrictionsSql: string = QueryRestrictionParser.parseToText(queryRestrictions);
-
-                query = query.concat(whereCommand).concat(restrictionsSql);
+                new QueryRestrictionParser<Pagamento>(query).parse(queryRestrictions);
             }
 
-            this._connection.query<mysql.RowDataPacket[]>(query, (err, result) => {
-                if (err) return reject(err);
-
-                resolve(result.map((row) => RowParser.parse<Pagamento>(row)));
-            });
+            query.exec()
+                .then(pagamentos => resolve(pagamentos))
+                .catch((err) => reject(err));
         });
     }
 
-    count(...queryRestrictions: QueryRestriction[]): Promise<number> {
-        return new Promise((resolve: (count : number) => void, reject: (error: Error) => void) => {
+    count(...queryRestrictions: QueryRestriction<Pagamento>[]): Promise<number> {
+        return new Promise((resolve: (count: number) => void, reject: (error: Error) => void) => {
 
-            let query: string = "select count(1) count from pagamento ";
+            let query: DocumentQuery<Pagamento[], Pagamento> = model.find();
+
             if (queryRestrictions && queryRestrictions.length) {
-                let whereCommand: string = " where 1 = 1 ";
-
-                let restrictionsSql: string = QueryRestrictionParser.parseToText(queryRestrictions);
-
-                query = query.concat(whereCommand).concat(restrictionsSql);
+                new QueryRestrictionParser<Pagamento>(query).parse(queryRestrictions);
             }
 
-            this._connection.query<mysql.RowDataPacket[]>(query, (err, result) => {
-                if (err) return reject(err);
-
-                resolve(result[0]['count']);
-            });
+            query
+                .count()
+                .exec()
+                .then(pagamentos => resolve(pagamentos))
+                .catch((err) => reject(err));
         });
     }
 }

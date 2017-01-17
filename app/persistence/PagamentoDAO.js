@@ -1,74 +1,78 @@
 "use strict";
+var mongoose = require("mongoose");
+var mongoose_1 = require("mongoose");
 var es6_promise_1 = require("es6-promise");
-var RowParser_1 = require("../utils/query/RowParser");
 var QueryRestrictionParser_1 = require("../utils/query/QueryRestrictionParser");
-var PagamentoDAO = (function () {
-    function PagamentoDAO(connection) {
-        this._connection = connection;
+var StatusPagamento_1 = require("../models/StatusPagamento");
+var schemaDefinition = {
+    status: {
+        type: String,
+        enum: StatusPagamento_1.StatusPagamento.values()
+    },
+    dataCriacao: {
+        type: Date,
+    },
+    valor: {
+        type: Number,
+        min: 0
     }
-    PagamentoDAO.prototype.insereERecupera = function (registro) {
-        var _this = this;
+};
+var options = {
+    versionKey: false
+};
+var schema = new mongoose_1.Schema(schemaDefinition, options);
+var model = mongoose.model('Pagamento', schema);
+var PagamentoDAO = (function () {
+    function PagamentoDAO() {
+    }
+    PagamentoDAO.prototype.insereERecupera = function (pagamento) {
         return new es6_promise_1.Promise(function (resolve, reject) {
-            _this._connection.query("insert into pagamento set ?", registro, function (err, result) {
-                if (err)
-                    return reject(err);
-                _this.buscarPorId(result.insertId)
-                    .then(function (comp) { return resolve(comp); })
-                    .catch(function (err) { return reject(err); });
+            model.create(pagamento)
+                .then(function (newPagamento) {
+                resolve(newPagamento);
+            })
+                .catch(function (err) {
+                reject(err);
             });
         });
     };
     PagamentoDAO.prototype.buscarPorId = function (id) {
-        var _this = this;
         return new es6_promise_1.Promise(function (resolve, reject) {
-            _this._connection.query("select * from pagamento where id = ?", id, function (err, result) {
-                if (err)
-                    reject(err);
-                if (result.length == 0) {
-                    resolve(null);
-                }
-                resolve(RowParser_1.RowParser.parse(result[0]));
-            });
+            model.findById(id)
+                .then(resolve)
+                .catch(reject);
         });
     };
     PagamentoDAO.prototype.buscar = function () {
-        var _this = this;
         var queryRestrictions = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             queryRestrictions[_i] = arguments[_i];
         }
         return new es6_promise_1.Promise(function (resolve, reject) {
-            var query = "select * from pagamento ";
+            var query = model.find();
             if (queryRestrictions && queryRestrictions.length) {
-                var whereCommand = " where 1 = 1 ";
-                var restrictionsSql = QueryRestrictionParser_1.QueryRestrictionParser.parseToText(queryRestrictions);
-                query = query.concat(whereCommand).concat(restrictionsSql);
+                new QueryRestrictionParser_1.QueryRestrictionParser(query).parse(queryRestrictions);
             }
-            _this._connection.query(query, function (err, result) {
-                if (err)
-                    return reject(err);
-                resolve(result.map(function (row) { return RowParser_1.RowParser.parse(row); }));
-            });
+            query.exec()
+                .then(function (pagamentos) { return resolve(pagamentos); })
+                .catch(function (err) { return reject(err); });
         });
     };
     PagamentoDAO.prototype.count = function () {
-        var _this = this;
         var queryRestrictions = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             queryRestrictions[_i] = arguments[_i];
         }
         return new es6_promise_1.Promise(function (resolve, reject) {
-            var query = "select count(1) count from pagamento ";
+            var query = model.find();
             if (queryRestrictions && queryRestrictions.length) {
-                var whereCommand = " where 1 = 1 ";
-                var restrictionsSql = QueryRestrictionParser_1.QueryRestrictionParser.parseToText(queryRestrictions);
-                query = query.concat(whereCommand).concat(restrictionsSql);
+                new QueryRestrictionParser_1.QueryRestrictionParser(query).parse(queryRestrictions);
             }
-            _this._connection.query(query, function (err, result) {
-                if (err)
-                    return reject(err);
-                resolve(result[0]['count']);
-            });
+            query
+                .count()
+                .exec()
+                .then(function (pagamentos) { return resolve(pagamentos); })
+                .catch(function (err) { return reject(err); });
         });
     };
     return PagamentoDAO;

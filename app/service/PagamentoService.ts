@@ -1,5 +1,4 @@
 import {PagamentoDAO} from "../persistence/PagamentoDAO";
-import {ConnectionFactory} from "../config/ConnectionFatory";
 import {Pagamento} from "../models/Pagamento";
 import {StatusPagamento} from "../models/StatusPagamento";
 import {Restriction, Limit, Offset} from "../utils/restriction/Restriction";
@@ -11,7 +10,7 @@ export class PagamentoService {
     private dao: PagamentoDAO;
 
     public constructor() {
-        this.dao = new PagamentoDAO(ConnectionFactory.createConnection())
+        this.dao = new PagamentoDAO()
     }
 
     public registrarPagamento(pagamento: Pagamento): Promise<Pagamento> {
@@ -25,7 +24,7 @@ export class PagamentoService {
         });
     }
 
-    public obterPagamentoById(id: Number) {
+    public obterPagamentoById(id: string) {
         return new Promise((resolve: (pagamentoRegistrado: Pagamento) => void, reject: (error: Error) => void) => {
             this.dao.buscarPorId(id)
                 .then(resolve)
@@ -35,7 +34,7 @@ export class PagamentoService {
 
     public countPagamentos(restrictions: Restriction<any>[]): Promise<number> {
         return new Promise((resolve: (pagamentos: number) => void, reject: (error: Error) => void) => {
-            this.dao.count.apply(this.dao, QueryInterpreter.parse(restrictions))
+            this.dao.count(...QueryInterpreter.parse(restrictions))
                 .then(resolve)
                 .catch(reject);
         });

@@ -5,8 +5,7 @@ var PagamentoValidator_1 = require("../validation/PagamentoValidator");
 var IdentificacaoValidator_1 = require("../validation/IdentificacaoValidator");
 var RestQueryInterpreter_1 = require("../utils/rest/RestQueryInterpreter");
 var Page_1 = require("../utils/pagination/Page");
-var Env_1 = require("../utils/env/Env");
-var url = require("url");
+var Paginator_1 = require("../utils/pagination/Paginator");
 var PagamentoRouter = (function () {
     function PagamentoRouter() {
         this.router = express_1.Router();
@@ -41,25 +40,7 @@ var PagamentoRouter = (function () {
             page.body = values[0], page.totalCount = values[1];
             return page;
         })
-            .then(function (page) {
-            var links = {};
-            if (page.hasNext()) {
-                var nextPageUrl = url.parse(req.originalUrl, true);
-                nextPageUrl.search = null;
-                nextPageUrl.query._offset = nextPageUrl.query._offset ? nextPageUrl.query._offset++ : 2;
-                links['next'] = url.resolve(url.format(Env_1.default.APLICATION_BASE_PATH), url.format(nextPageUrl));
-                ;
-            }
-            if (page.hasPrevious()) {
-                var prevPageUrl = url.parse(req.originalUrl, true);
-                prevPageUrl.search = null;
-                prevPageUrl.query._offset = prevPageUrl.query._offset--;
-                links['previous'] = url.resolve(url.format(Env_1.default.APLICATION_BASE_PATH), url.format(prevPageUrl));
-            }
-            res
-                .links(links) //Monta os links
-                .json(page.body); //Devolve os pagamentos
-        })
+            .then(function (page) { return Paginator_1.default.buildPaginatedResponse(req, res, page); })
             .catch(function (err) { return next(err); });
     };
     PagamentoRouter.prototype.obterPagamentoById = function (req, res, next) {

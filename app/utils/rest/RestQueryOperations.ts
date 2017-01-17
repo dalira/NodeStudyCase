@@ -10,14 +10,14 @@ import {
 } from "../restriction/Restriction";
 
 const RestQueryOperations = {
-    "$": StartsWith,
-    "^": EndsWith,
+    "^": StartsWith,
+    "$": EndsWith,
     "~": Like,
     ".gt": GreaterThan,
     ".ge": GreaterOrEqual,
     ".lt": LowerThan,
     ".le": LowerOrEqual,
     "": Equal,
-}
+};
 
 export default RestQueryOperations;

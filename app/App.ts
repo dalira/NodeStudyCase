@@ -2,6 +2,7 @@ import * as express from "express";
 import {MainRouter} from './routes/MainRouter';
 import {MiddlewareConfigurator} from "./config/MiddlewareConfigurator";
 import {ValidationError} from "./errors/ValidationError";
+import {ConnectionFactory} from "./config/ConnectionFactory";
 
 /**
  * Cria e configura o servidor express
@@ -18,6 +19,8 @@ export class App {
         //create expressjs application
         this.app = express();
 
+        this.startDataBase();
+
         this.configureMiddleware();
 
         this.prepareRoutes();
@@ -25,7 +28,7 @@ export class App {
         this.prepareLastErrorHandler();
 
         this.app.listen(3000, function () {
-            console.log('No ar com ts');
+            console.log('Checando sistemas!');
         });
     }
 
@@ -47,5 +50,9 @@ export class App {
                 res.sendStatus(500);
             }
         });
+    }
+
+    private startDataBase() {
+        new ConnectionFactory("mongodb://localhost/payfast").startConnection();
     }
 }

@@ -3,6 +3,7 @@ var express = require("express");
 var MainRouter_1 = require("./routes/MainRouter");
 var MiddlewareConfigurator_1 = require("./config/MiddlewareConfigurator");
 var ValidationError_1 = require("./errors/ValidationError");
+var ConnectionFactory_1 = require("./config/ConnectionFactory");
 /**
  * Cria e configura o servidor express
  */
@@ -10,11 +11,12 @@ var App = (function () {
     function App() {
         //create expressjs application
         this.app = express();
+        this.startDataBase();
         this.configureMiddleware();
         this.prepareRoutes();
         this.prepareLastErrorHandler();
         this.app.listen(3000, function () {
-            console.log('No ar com ts');
+            console.log('Checando sistemas!');
         });
     }
     App.bootstrap = function () {
@@ -36,6 +38,9 @@ var App = (function () {
                 res.sendStatus(500);
             }
         });
+    };
+    App.prototype.startDataBase = function () {
+        new ConnectionFactory_1.ConnectionFactory("mongodb://localhost/payfast").startConnection();
     };
     return App;
 }());

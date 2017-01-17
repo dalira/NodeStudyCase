@@ -48,8 +48,8 @@ var QueryEqual = (function () {
     function QueryEqual(restriction) {
         this._restriction = restriction;
     }
-    QueryEqual.prototype.toDataBaseRestriction = function () {
-        return "and " + this._restriction.field + " = '" + this._restriction.value + "'";
+    QueryEqual.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.where(this._restriction.field).equals(this._restriction.value);
     };
     return QueryEqual;
 }());
@@ -58,8 +58,8 @@ var QueryStartsWith = (function () {
     function QueryStartsWith(restriction) {
         this._restriction = restriction;
     }
-    QueryStartsWith.prototype.toDataBaseRestriction = function () {
-        return "and " + this._restriction.field + " like '" + this._restriction.value + "%'";
+    QueryStartsWith.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.$where("function() { return this." + this._restriction.field + ".toString().match(/^" + this._restriction.value + "/) != null; }");
     };
     return QueryStartsWith;
 }());
@@ -68,8 +68,8 @@ var QueryEndsWith = (function () {
     function QueryEndsWith(restriction) {
         this._restriction = restriction;
     }
-    QueryEndsWith.prototype.toDataBaseRestriction = function () {
-        return "and " + this._restriction.field + " like '%" + this._restriction.value + "'";
+    QueryEndsWith.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.$where("function() { return this." + this._restriction.field + ".toString().match(/" + this._restriction.value + "$/) != null; }");
     };
     return QueryEndsWith;
 }());
@@ -78,8 +78,8 @@ var QueryLike = (function () {
     function QueryLike(restriction) {
         this._restriction = restriction;
     }
-    QueryLike.prototype.toDataBaseRestriction = function () {
-        return "and " + this._restriction.field + " like '%" + this._restriction.value + "%'";
+    QueryLike.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.$where("function() { return this." + this._restriction.field + ".toString().match(/" + this._restriction.value + "/) != null; }");
     };
     return QueryLike;
 }());
@@ -88,8 +88,8 @@ var QueryGreaterThan = (function () {
     function QueryGreaterThan(restriction) {
         this._restriction = restriction;
     }
-    QueryGreaterThan.prototype.toDataBaseRestriction = function () {
-        return "and " + this._restriction.field + " > " + this._restriction.value;
+    QueryGreaterThan.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.gt(this._restriction.field, this._restriction.value.valueOf());
     };
     return QueryGreaterThan;
 }());
@@ -98,8 +98,8 @@ var QueryGreaterOrEqual = (function () {
     function QueryGreaterOrEqual(restriction) {
         this._restriction = restriction;
     }
-    QueryGreaterOrEqual.prototype.toDataBaseRestriction = function () {
-        return "and " + this._restriction.field + " >= " + this._restriction.value;
+    QueryGreaterOrEqual.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.gte(this._restriction.field, this._restriction.value.valueOf());
     };
     return QueryGreaterOrEqual;
 }());
@@ -108,8 +108,8 @@ var QueryLowerThan = (function () {
     function QueryLowerThan(restriction) {
         this._restriction = restriction;
     }
-    QueryLowerThan.prototype.toDataBaseRestriction = function () {
-        return "and " + this._restriction.field + " < " + this._restriction.value;
+    QueryLowerThan.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.lt(this._restriction.field, this._restriction.value.valueOf());
     };
     return QueryLowerThan;
 }());
@@ -118,8 +118,8 @@ var QueryLowerOrEqual = (function () {
     function QueryLowerOrEqual(restriction) {
         this._restriction = restriction;
     }
-    QueryLowerOrEqual.prototype.toDataBaseRestriction = function () {
-        return "and " + this._restriction.field + " <= " + this._restriction.value;
+    QueryLowerOrEqual.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.lte(this._restriction.field, this._restriction.value.valueOf());
     };
     return QueryLowerOrEqual;
 }());
@@ -128,8 +128,8 @@ var QueryLimit = (function () {
     function QueryLimit(restriction) {
         this._restriction = restriction;
     }
-    QueryLimit.prototype.toDataBaseRestriction = function () {
-        return "LIMIT " + this._restriction.value;
+    QueryLimit.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.limit(this._restriction.value);
     };
     return QueryLimit;
 }());
@@ -139,11 +139,8 @@ var QueryOffset = (function () {
         this._restriction = restriction;
         this._limit = limit;
     }
-    QueryOffset.prototype.toDataBaseRestriction = function () {
-        if (this._restriction.value == 1) {
-            return "";
-        }
-        return "OFFSET " + (this._restriction.value - 1) * this._limit.value;
+    QueryOffset.prototype.toDataBaseRestriction = function (queryObject) {
+        queryObject.skip((this._restriction.value - 1) * this._limit.value);
     };
     return QueryOffset;
 }());

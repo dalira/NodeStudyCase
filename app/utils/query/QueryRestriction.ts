@@ -11,14 +11,15 @@ import {
     Limit,
     Offset
 } from "../restriction/Restriction";
+import {Document, DocumentQuery} from "mongoose";
 
 export class QueryInterpreter {
 
     private constructor() {
     }
 
-    static parse(restrictions: Restriction<any>[]): QueryRestriction[] {
-        let queryRestrictions: QueryRestriction[] = [];
+    static parse<T extends Document>(restrictions: Restriction<any>[]): QueryRestriction<T>[] {
+        let queryRestrictions: QueryRestriction<T>[] = [];
 
         for (let i = 0; i < restrictions.length; i++) {
             let restriction: Restriction<any> = restrictions[i];
@@ -53,13 +54,13 @@ export class QueryInterpreter {
     }
 }
 
-export interface QueryRestriction {
+export interface QueryRestriction<T extends Document> {
 
-    toDataBaseRestriction(): string;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>);
 
 }
 
-export class QueryEqual implements QueryRestriction {
+export class QueryEqual<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: Equal;
 
@@ -67,14 +68,13 @@ export class QueryEqual implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `and ${this._restriction.field} = '${this._restriction.value}'`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.where(this._restriction.field).equals(this._restriction.value);
     }
 
 }
 
-export class QueryStartsWith implements QueryRestriction {
-
+export class QueryStartsWith<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: StartsWith;
 
@@ -82,14 +82,13 @@ export class QueryStartsWith implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `and ${this._restriction.field} like '${this._restriction.value}%'`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.$where(`function() { return this.${this._restriction.field}.toString().match(/^${this._restriction.value}/) != null; }`);
     }
 
 }
 
-export class QueryEndsWith implements QueryRestriction {
-
+export class QueryEndsWith<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: EndsWith;
 
@@ -97,14 +96,13 @@ export class QueryEndsWith implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `and ${this._restriction.field} like '%${this._restriction.value}'`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.$where(`function() { return this.${this._restriction.field}.toString().match(/${this._restriction.value}$/) != null; }`);
     }
 
 }
 
-export class QueryLike implements QueryRestriction {
-
+export class QueryLike<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: Like;
 
@@ -112,14 +110,13 @@ export class QueryLike implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `and ${this._restriction.field} like '%${this._restriction.value}%'`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.$where(`function() { return this.${this._restriction.field}.toString().match(/${this._restriction.value}/) != null; }`);
     }
 
 }
 
-export class QueryGreaterThan implements QueryRestriction {
-
+export class QueryGreaterThan<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: GreaterThan;
 
@@ -127,14 +124,13 @@ export class QueryGreaterThan implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `and ${this._restriction.field} > ${this._restriction.value}`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.gt(this._restriction.field, this._restriction.value.valueOf());
     }
 
 }
 
-export class QueryGreaterOrEqual implements QueryRestriction {
-
+export class QueryGreaterOrEqual<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: GreaterOrEqual;
 
@@ -142,13 +138,12 @@ export class QueryGreaterOrEqual implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `and ${this._restriction.field} >= ${this._restriction.value}`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.gte(this._restriction.field, this._restriction.value.valueOf());
     }
 }
 
-export class QueryLowerThan implements QueryRestriction {
-
+export class QueryLowerThan<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: LowerThan;
 
@@ -156,14 +151,13 @@ export class QueryLowerThan implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `and ${this._restriction.field} < ${this._restriction.value}`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.lt(this._restriction.field, this._restriction.value.valueOf());
     }
 
 }
 
-export class QueryLowerOrEqual implements QueryRestriction {
-
+export class QueryLowerOrEqual<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: LowerOrEqual;
 
@@ -171,13 +165,12 @@ export class QueryLowerOrEqual implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `and ${this._restriction.field} <= ${this._restriction.value}`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.lte(this._restriction.field, this._restriction.value.valueOf());
     }
 }
 
-export class QueryLimit implements QueryRestriction {
-
+export class QueryLimit<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: Limit;
 
@@ -185,12 +178,12 @@ export class QueryLimit implements QueryRestriction {
         this._restriction = restriction;
     }
 
-    toDataBaseRestriction(): string {
-        return `LIMIT ${this._restriction.value}`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.limit(this._restriction.value);
     }
 }
 
-export class QueryOffset implements QueryRestriction {
+export class QueryOffset<T extends Document> implements QueryRestriction<T> {
 
     private _restriction: Offset;
     private _limit: Limit;
@@ -200,10 +193,7 @@ export class QueryOffset implements QueryRestriction {
         this._limit = limit;
     }
 
-    toDataBaseRestriction(): string {
-        if (this._restriction.value == 1) {
-            return "";
-        }
-        return `OFFSET ${(this._restriction.value - 1) * this._limit.value}`;
+    toDataBaseRestriction(queryObject: DocumentQuery<T[], T>) {
+        queryObject.skip((this._restriction.value - 1) * this._limit.value);
     }
 }

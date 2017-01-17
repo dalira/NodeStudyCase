@@ -1,11 +1,10 @@
 "use strict";
 var PagamentoDAO_1 = require("../persistence/PagamentoDAO");
-var ConnectionFatory_1 = require("../config/ConnectionFatory");
 var StatusPagamento_1 = require("../models/StatusPagamento");
 var QueryRestriction_1 = require("../utils/query/QueryRestriction");
 var PagamentoService = (function () {
     function PagamentoService() {
-        this.dao = new PagamentoDAO_1.PagamentoDAO(ConnectionFatory_1.ConnectionFactory.createConnection());
+        this.dao = new PagamentoDAO_1.PagamentoDAO();
     }
     PagamentoService.prototype.registrarPagamento = function (pagamento) {
         var _this = this;
@@ -27,9 +26,9 @@ var PagamentoService = (function () {
     PagamentoService.prototype.countPagamentos = function (restrictions) {
         var _this = this;
         return new Promise(function (resolve, reject) {
-            _this.dao.count.apply(_this.dao, QueryRestriction_1.QueryInterpreter.parse(restrictions))
-                .then(resolve)
+            (_a = _this.dao).count.apply(_a, QueryRestriction_1.QueryInterpreter.parse(restrictions)).then(resolve)
                 .catch(reject);
+            var _a;
         });
     };
     PagamentoService.prototype.obterPagamentos = function (restrictions) {
