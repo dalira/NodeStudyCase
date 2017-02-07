@@ -1,6 +1,12 @@
-export class Usuario {
+import {Document} from "mongoose";
+import {Pessoa} from "./Pessoa";
 
-    private _login : string;
-    private _password : string;
+export interface Usuario extends Document {
+
+    login : string;
+    senha : string;
+    pessoa: Pessoa;
+
+    verifyPasswordSync(password) : boolean;
 
 }

@@ -1,5 +1,7 @@
 import {Application, Router} from "express";
-import PagamentoRouter from "./PagamentoRouter";
+import pagamentoRouter from "./PagamentoRouter";
+import usuarioRouter from "./UsuarioRouter";
+import AutenticationMiddleware from "../config/AutenticationMiddleware";
 
 export class MainRouter {
 
@@ -11,7 +13,12 @@ export class MainRouter {
     }
 
     public init() : void {
-        this.app.use(PagamentoRouter);
+        //Free
+        this.app.use(usuarioRouter);
+
+        //Secure
+        this.app.all("*", AutenticationMiddleware.interceptRequest());
+        this.app.use(pagamentoRouter);
     }
 
 }
