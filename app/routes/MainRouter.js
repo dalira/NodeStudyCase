@@ -1,6 +1,7 @@
 "use strict";
 var PagamentoRouter_1 = require("./PagamentoRouter");
 var UsuarioRouter_1 = require("./UsuarioRouter");
+var AuthenticationRouter_1 = require("./AuthenticationRouter");
 var AutenticationMiddleware_1 = require("../config/AutenticationMiddleware");
 var MainRouter = (function () {
     function MainRouter(app) {
@@ -9,9 +10,10 @@ var MainRouter = (function () {
     }
     MainRouter.prototype.init = function () {
         //Free
-        this.app.use(UsuarioRouter_1.default);
+        this.app.use(AuthenticationRouter_1.default);
         //Secure
         this.app.all("*", AutenticationMiddleware_1.default.interceptRequest());
+        this.app.use(UsuarioRouter_1.default);
         this.app.use(PagamentoRouter_1.default);
     };
     return MainRouter;
