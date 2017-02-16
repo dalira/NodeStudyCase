@@ -4,6 +4,7 @@ import {StatusPagamento} from "../models/StatusPagamento";
 import {Restriction, Limit, Offset} from "../utils/restriction/Restriction";
 import {QueryInterpreter} from "../utils/query/QueryRestriction";
 import reject = Promise.reject;
+import {Stream} from "stream";
 
 export class PagamentoService {
 
@@ -46,6 +47,10 @@ export class PagamentoService {
                 .then(resolve)
                 .catch(reject);
         });
+    }
+
+    public obterStreamPagamentos(restrictions: Restriction<any>[]): Stream {
+        return this.dao.stream(...QueryInterpreter.parse(restrictions));
     }
 
 }

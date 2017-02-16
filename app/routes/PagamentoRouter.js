@@ -37,7 +37,8 @@ var PagamentoRouter = (function () {
             ]);
         })
             .then(function (values) {
-            page.body = values[0], page.totalCount = values[1];
+            values[0].pipe(res);
+            page.totalCount = values[1];
             return page;
         })
             .then(function (page) { return Paginator_1.default.buildPaginatedResponse(req, res, page); })

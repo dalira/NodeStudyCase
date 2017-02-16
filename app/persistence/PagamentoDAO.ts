@@ -5,6 +5,8 @@ import {Pagamento} from "../models/Pagamento";
 import {QueryRestriction} from "../utils/query/QueryRestriction";
 import {QueryRestrictionParser} from "../utils/query/QueryRestrictionParser";
 import {StatusPagamento} from "../models/StatusPagamento";
+import {Readable} from "stream";
+import {Stream} from "stream";
 
 let schemaDefinition: SchemaDefinition = {
     status: {
@@ -64,6 +66,16 @@ export class PagamentoDAO {
                 .then(pagamentos => resolve(pagamentos))
                 .catch((err) => reject(err));
         });
+    }
+
+    stream(...queryRestrictions: QueryRestriction<Pagamento>[]): Stream {
+            let query: DocumentQuery<Pagamento[], Pagamento> = model.find();
+
+            if (queryRestrictions && queryRestrictions.length) {
+                new QueryRestrictionParser<Pagamento>(query).parse(queryRestrictions);
+            }
+
+            return query.stream();
     }
 
     count(...queryRestrictions: QueryRestriction<Pagamento>[]): Promise<number> {

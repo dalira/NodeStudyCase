@@ -58,6 +58,17 @@ var PagamentoDAO = (function () {
                 .catch(function (err) { return reject(err); });
         });
     };
+    PagamentoDAO.prototype.stream = function () {
+        var queryRestrictions = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            queryRestrictions[_i] = arguments[_i];
+        }
+        var query = model.find();
+        if (queryRestrictions && queryRestrictions.length) {
+            new QueryRestrictionParser_1.QueryRestrictionParser(query).parse(queryRestrictions);
+        }
+        return query.stream();
+    };
     PagamentoDAO.prototype.count = function () {
         var queryRestrictions = [];
         for (var _i = 0; _i < arguments.length; _i++) {

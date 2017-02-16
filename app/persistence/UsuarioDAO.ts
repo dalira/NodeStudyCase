@@ -13,7 +13,11 @@ let schemaDefinition: SchemaDefinition = {
         minlength: 5,
         maxlength: 20,
         set: function (val) {
-            return this.securedField; //Impedir alteração
+            if (this.isNew) {
+                return val;
+            }else{
+                return this.securedField; //Impedir alteração
+            }
         }
     },
     senha: {

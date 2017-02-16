@@ -51,7 +51,8 @@ class PagamentoRouter {
                 )
             )
             .then((values: any[]) => {
-                [page.body, page.totalCount] = values;
+                values[0].pipe(res);
+                page.totalCount = values[1];
                 return page;
             })
             .then((page: Page<Pagamento>) => Paginator.buildPaginatedResponse(req, res, page))

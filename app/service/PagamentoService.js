@@ -39,6 +39,10 @@ var PagamentoService = (function () {
             var _a;
         });
     };
+    PagamentoService.prototype.obterStreamPagamentos = function (restrictions) {
+        return (_a = this.dao).stream.apply(_a, QueryRestriction_1.QueryInterpreter.parse(restrictions));
+        var _a;
+    };
     return PagamentoService;
 }());
 exports.PagamentoService = PagamentoService;
