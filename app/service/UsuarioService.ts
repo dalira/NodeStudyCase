@@ -20,18 +20,25 @@ class UsuarioService {
         });
     }
 
-    public autenticar(usuario : Usuario): Promise<Usuario> {
+    public autenticar(usuario: Usuario): Promise<Usuario> {
         return new Promise((resolve: (usuario: Usuario) => void, reject: (error: Error) => void) => {
-            UsuarioDAO.buscarPorLogin(usuario.login)
-                .then((usuarioBase: Usuario) => {
-                    if (usuarioBase.verifyPasswordSync(usuario.senha)) {
-                        resolve(usuarioBase);
-                    } else {
-                        reject(new AuthenticationError("Usuário/Senha incorretos"));
-                    }
-                })
-                .catch(reject);
-        });
+                UsuarioDAO.buscarPorLogin(usuario.login, true)
+                    .then((usuarioBase: Usuario) => {
+                        usuarioBase.verifySenha(usuario.senha, (err, valid) => {
+                            if (err) {
+                                reject(err);
+                            }
+
+                            if (valid) {
+                                resolve(usuarioBase);
+                            } else {
+                                reject(new AuthenticationError("Usuário/Senha incorretos"));
+                            }
+                        })
+                    })
+                    .catch(reject);
+            }
+        );
     }
 
 }

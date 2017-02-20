@@ -8,6 +8,7 @@ import {RestQueryInterpreter} from "../utils/rest/RestQueryInterpreter";
 import {Page} from "../utils/pagination/Page";
 import {RestQuery} from "../utils/rest/RestQuery";
 import Paginator from "../utils/pagination/Paginator";
+import {Stream} from "stream";
 
 class PagamentoRouter {
 
@@ -43,9 +44,9 @@ class PagamentoRouter {
                 return PagamentoValidator.assertQuery(restQuery); //Valida campos da query
             })
             .then((restQuery: RestQuery) =>
-                Promise.all<Pagamento[], number>(
+                Promise.all<Stream, number>(
                     [
-                        this.service.obterPagamentos([...restQuery.restrictions, restQuery.limit, restQuery.offset]), //Obtem os pagamentos,
+                        this.service.obterStreamPagamentos([...restQuery.restrictions, restQuery.limit, restQuery.offset]), //Obtem os pagamentos,
                         this.service.countPagamentos(restQuery.restrictions) //Conta os pagamentos
                     ]
                 )

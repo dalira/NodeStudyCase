@@ -5,15 +5,15 @@ import {ValidationError} from "./errors/ValidationError";
 import {ConnectionFactory} from "./config/ConnectionFactory";
 
 /**
- * Cria e configura o servidor express
+ *Cria e configura o servidor express
  */
 export class App {
-
-    public app: express.Application;
 
     public static bootstrap(): App {
         return new App();
     }
+
+    public app: express.Application;
 
     constructor() {
         //create expressjs application

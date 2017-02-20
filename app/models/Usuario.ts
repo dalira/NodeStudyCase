@@ -7,6 +7,6 @@ export interface Usuario extends Document {
     senha : string;
     pessoa: Pessoa;
 
-    verifyPasswordSync(password) : boolean;
+    verifySenha(password: String, callback : Function) : boolean;
 
 }

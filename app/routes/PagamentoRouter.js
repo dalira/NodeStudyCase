@@ -32,7 +32,7 @@ var PagamentoRouter = (function () {
         })
             .then(function (restQuery) {
             return Promise.all([
-                _this.service.obterPagamentos(restQuery.restrictions.concat([restQuery.limit, restQuery.offset])),
+                _this.service.obterStreamPagamentos(restQuery.restrictions.concat([restQuery.limit, restQuery.offset])),
                 _this.service.countPagamentos(restQuery.restrictions) //Conta os pagamentos
             ]);
         })

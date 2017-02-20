@@ -1,9 +1,9 @@
 export enum StatusPagamento {
-    Pendente, Processando, Pago
+    Pendente, Processando, Pago,
 }
 
 export namespace StatusPagamento {
-    export function values() : StatusPagamento[] {
+    export function values():StatusPagamento[] {
         return [StatusPagamento.Pendente, StatusPagamento.Processando, StatusPagamento.Pago];
     }
 }

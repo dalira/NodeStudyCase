@@ -68,9 +68,9 @@ class UsuarioDAO {
         });
     }
 
-    buscarPorLogin(login: string): Promise<Usuario> {
+    buscarPorLogin(login: string, comSenha? : boolean): Promise<Usuario> {
         return new Promise((resolve: (registro: Usuario) => void, reject: (error: Error) => void) => {
-            model.findOne({'login': login})
+            model.findOne({'login': login}, (comSenha ? 'login senha' : 'login'))
                 .then(resolve)
                 .catch(reject)
         });

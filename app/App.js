@@ -5,7 +5,7 @@ var MiddlewareConfigurator_1 = require("./config/MiddlewareConfigurator");
 var ValidationError_1 = require("./errors/ValidationError");
 var ConnectionFactory_1 = require("./config/ConnectionFactory");
 /**
- * Cria e configura o servidor express
+ *Cria e configura o servidor express
  */
 var App = (function () {
     function App() {
