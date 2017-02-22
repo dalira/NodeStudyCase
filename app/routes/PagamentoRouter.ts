@@ -1,5 +1,5 @@
 import {Router, Request, Response, NextFunction} from "express";
-import {PagamentoService} from "../service/PagamentoService";
+import pagamentoService from "../service/PagamentoService";
 import {PagamentoValidator} from "../validation/PagamentoValidator";
 import {ValidationError} from "joi";
 import {IdentificacaoValidator} from "../validation/IdentificacaoValidator";
@@ -10,11 +10,9 @@ import Paginator from "../utils/pagination/Paginator";
 class PagamentoRouter {
 
     router: Router;
-    service: PagamentoService;
 
     constructor() {
         this.router = Router();
-        this.service = new PagamentoService();
         this.init();
     };
 
@@ -29,14 +27,14 @@ class PagamentoRouter {
 
     private obterPagamentos(req: Request, res: Response, next: NextFunction): void {
         Paginator.buildPage<Pagamento>(req.query, PagamentoValidator.assertQuery,
-            this.service.obterPagamentos, this.service.countPagamentos)
+            pagamentoService.obterPagamentos, pagamentoService.countPagamentos)
             .then((page: Page<Pagamento>) => Paginator.setPageResponse(req, res, page))
             .catch((err) => next(err));
     }
 
     private obterPagamentoById(req: Request, res: Response, next: NextFunction): void {
         IdentificacaoValidator.assert(req.params["id"])
-            .then((id: string) => this.service.obterPagamentoById(id))
+            .then((id: string) => pagamentoService.obterPagamentoById(id))
             .then((pagamento: Pagamento) => res.json(pagamento))
             .catch((err) => {
                 if (err.name === "ValidationError") {
@@ -49,7 +47,7 @@ class PagamentoRouter {
     private registrarPagamento(req: Request, res: Response, next: NextFunction): void {
 
         PagamentoValidator.assertEntrance(req.body)
-            .then((pagamento) => this.service.registrarPagamento(pagamento))
+            .then((pagamento) => pagamentoService.registrarPagamento(pagamento))
             .then((pagamentoCriado) => res.json(pagamentoCriado).status(201))
             .catch((err: Error) => {
                 if (err.name === "ValidationError") {

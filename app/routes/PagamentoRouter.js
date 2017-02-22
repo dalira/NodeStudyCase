@@ -7,7 +7,6 @@ var Paginator_1 = require("../utils/pagination/Paginator");
 var PagamentoRouter = (function () {
     function PagamentoRouter() {
         this.router = express_1.Router();
-        this.service = new PagamentoService_1.PagamentoService();
         this.init();
     }
     ;
@@ -19,14 +18,13 @@ var PagamentoRouter = (function () {
             .get(this.obterPagamentoById.bind(this));
     };
     PagamentoRouter.prototype.obterPagamentos = function (req, res, next) {
-        Paginator_1.default.buildPage(req.query, PagamentoValidator_1.PagamentoValidator.assertQuery, this.service.obterPagamentos, this.service.countPagamentos)
+        Paginator_1.default.buildPage(req.query, PagamentoValidator_1.PagamentoValidator.assertQuery, PagamentoService_1.default.obterPagamentos, PagamentoService_1.default.countPagamentos)
             .then(function (page) { return Paginator_1.default.setPageResponse(req, res, page); })
             .catch(function (err) { return next(err); });
     };
     PagamentoRouter.prototype.obterPagamentoById = function (req, res, next) {
-        var _this = this;
         IdentificacaoValidator_1.IdentificacaoValidator.assert(req.params["id"])
-            .then(function (id) { return _this.service.obterPagamentoById(id); })
+            .then(function (id) { return PagamentoService_1.default.obterPagamentoById(id); })
             .then(function (pagamento) { return res.json(pagamento); })
             .catch(function (err) {
             if (err.name === "ValidationError") {
@@ -36,9 +34,8 @@ var PagamentoRouter = (function () {
         });
     };
     PagamentoRouter.prototype.registrarPagamento = function (req, res, next) {
-        var _this = this;
         PagamentoValidator_1.PagamentoValidator.assertEntrance(req.body)
-            .then(function (pagamento) { return _this.service.registrarPagamento(pagamento); })
+            .then(function (pagamento) { return PagamentoService_1.default.registrarPagamento(pagamento); })
             .then(function (pagamentoCriado) { return res.json(pagamentoCriado).status(201); })
             .catch(function (err) {
             if (err.name === "ValidationError") {

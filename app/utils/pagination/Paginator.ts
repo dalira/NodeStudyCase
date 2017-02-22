@@ -17,6 +17,7 @@ export default class Paginator {
                                querryAsserter: (restQuery: RestQuery) => Promise<RestQuery>,
                                bodyGetter: (restrictions: Restriction<any>[]) => Promise<T[]>,
                                totalSizeCounter: (restrictions: Restriction<any>[]) => Promise<number>): Promise<Page<T>> {
+
         return new Promise((resolve: (page: Page<T>) => void, reject: (error: Error) => void) => {
 
             let page: Page<T> = new Page<T>();

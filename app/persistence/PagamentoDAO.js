@@ -77,5 +77,7 @@ var PagamentoDAO = (function () {
     };
     return PagamentoDAO;
 }());
-exports.PagamentoDAO = PagamentoDAO;
+var pagamentoDAO = new PagamentoDAO();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = pagamentoDAO;
 //# sourceMappingURL=PagamentoDAO.js.map

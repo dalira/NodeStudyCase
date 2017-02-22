@@ -29,7 +29,7 @@ let options: SchemaOptions = {
 let schema: Schema = new Schema(schemaDefinition, options);
 let model: Model<Pagamento> = mongoose.model<Pagamento>('Pagamento', schema);
 
-export class PagamentoDAO {
+class PagamentoDAO {
 
     insereERecupera(pagamento: Pagamento): Promise<Pagamento> {
         return new Promise((resolve: (registro: Pagamento) => void, reject: (error: Error) => void) => {
@@ -85,3 +85,6 @@ export class PagamentoDAO {
         });
     }
 }
+
+const pagamentoDAO = new PagamentoDAO();
+export default pagamentoDAO;

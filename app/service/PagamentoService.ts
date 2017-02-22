@@ -1,25 +1,18 @@
-import {PagamentoDAO} from "../persistence/PagamentoDAO";
+import pagamentoDAO from "../persistence/PagamentoDAO";
 import {Pagamento} from "../models/Pagamento";
 import {StatusPagamento} from "../models/StatusPagamento";
-import {Restriction, Limit, Offset} from "../utils/restriction/Restriction";
+import {Restriction} from "../utils/restriction/Restriction";
 import {QueryInterpreter} from "../utils/query/QueryRestriction";
 import reject = Promise.reject;
-import {Stream} from "stream";
 
-export class PagamentoService {
-
-    private dao: PagamentoDAO;
-
-    public constructor() {
-        this.dao = new PagamentoDAO()
-    }
+class PagamentoService {
 
     public registrarPagamento(pagamento: Pagamento): Promise<Pagamento> {
         return new Promise((resolve: (pagamentoRegistrado: Pagamento) => void, reject: (error: Error) => void) => {
 
             pagamento.status = StatusPagamento.Pendente;
 
-            this.dao.insereERecupera(pagamento)
+            pagamentoDAO.insereERecupera(pagamento)
                 .then(resolve)
                 .catch(reject);
         });
@@ -27,7 +20,7 @@ export class PagamentoService {
 
     public obterPagamentoById(id: string) {
         return new Promise((resolve: (pagamentoRegistrado: Pagamento) => void, reject: (error: Error) => void) => {
-            this.dao.buscarPorId(id)
+            pagamentoDAO.buscarPorId(id)
                 .then(resolve)
                 .catch(reject);
         });
@@ -35,7 +28,7 @@ export class PagamentoService {
 
     public countPagamentos(restrictions: Restriction<any>[]): Promise<number> {
         return new Promise((resolve: (pagamentos: number) => void, reject: (error: Error) => void) => {
-            this.dao.count(...QueryInterpreter.parse(restrictions))
+            pagamentoDAO.count(...QueryInterpreter.parse(restrictions))
                 .then(resolve)
                 .catch(reject);
         });
@@ -43,10 +36,13 @@ export class PagamentoService {
 
     public obterPagamentos(restrictions: Restriction<any>[]): Promise<Pagamento[]> {
         return new Promise((resolve: (pagamentos: Pagamento[]) => void, reject: (error: Error) => void) => {
-            this.dao.buscar(...QueryInterpreter.parse(restrictions))
+            pagamentoDAO.buscar(...QueryInterpreter.parse(restrictions))
                 .then(resolve)
                 .catch(reject);
         });
     }
 
 }
+
+const pagamentoService = new PagamentoService();
+export default pagamentoService;
