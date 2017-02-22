@@ -49,8 +49,4 @@ export class PagamentoService {
         });
     }
 
-    public obterStreamPagamentos(restrictions: Restriction<any>[]): Stream {
-        return this.dao.stream(...QueryInterpreter.parse(restrictions));
-    }
-
 }

@@ -1,7 +1,11 @@
+import {Request, Response} from "express";
 import {Page} from "./Page";
-import {Response, Request} from "express";
 import Env from "../env/Env";
 import * as url from "url";
+import {RestQueryInterpreter} from "../rest/RestQueryInterpreter";
+import {RequestQueryMap} from "../rest/RequestQueryMap";
+import {RestQuery} from "../rest/RestQuery";
+import {Restriction} from "../restriction/Restriction";
 
 export default class Paginator {
     private static Env: any;
@@ -9,7 +13,43 @@ export default class Paginator {
     private constructor() {
     }
 
-    public static buildPaginatedResponse(req: Request, res: Response, page: Page<any>) {
+    public static buildPage<T>(query: RequestQueryMap,
+                               querryAsserter: (restQuery: RestQuery) => Promise<RestQuery>,
+                               bodyGetter: (restrictions: Restriction<any>[]) => Promise<T[]>,
+                               totalSizeCounter: (restrictions: Restriction<any>[]) => Promise<number>): Promise<Page<T>> {
+        return new Promise((resolve: (page: Page<T>) => void, reject: (error: Error) => void) => {
+
+            let page: Page<T> = new Page<T>();
+
+            RestQueryInterpreter.parse(query) //Interpresta a query
+                .then((restQuery: RestQuery) => {
+
+                    //Armazena os valores de limit e offset para paginação
+                    page.offset = restQuery.offset.value;
+                    page.limit = restQuery.limit.value;
+
+                    return querryAsserter(restQuery); //Valida campos da query
+                })
+                .then((restQuery: RestQuery) =>
+                    //Realiza em paralelo a obtenção dos dados e a contagem
+                    Promise.all<Promise<T[]>, number>(
+                        [
+                            bodyGetter([...restQuery.restrictions, restQuery.limit, restQuery.offset]), //Obtem os pagamentos,
+                            totalSizeCounter(restQuery.restrictions) //Conta os pagamentos
+                        ]
+                    )
+                )
+                .then((values: any[]) => {
+                    page.body = values[0];
+                    page.totalCount = values[1];
+
+                    resolve(page);
+                })
+                .catch(reject);
+        });
+    }
+
+    public static setPageResponse(req: Request, res: Response, page: Page<any>) {
 
         let links = {};
 

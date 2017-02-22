@@ -68,16 +68,6 @@ export class PagamentoDAO {
         });
     }
 
-    stream(...queryRestrictions: QueryRestriction<Pagamento>[]): Stream {
-            let query: DocumentQuery<Pagamento[], Pagamento> = model.find();
-
-            if (queryRestrictions && queryRestrictions.length) {
-                new QueryRestrictionParser<Pagamento>(query).parse(queryRestrictions);
-            }
-
-            return query.stream();
-    }
-
     count(...queryRestrictions: QueryRestriction<Pagamento>[]): Promise<number> {
         return new Promise((resolve: (count: number) => void, reject: (error: Error) => void) => {
 
