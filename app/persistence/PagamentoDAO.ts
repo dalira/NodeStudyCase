@@ -2,16 +2,14 @@ import * as mongoose from "mongoose";
 import {Schema, SchemaDefinition, Model, SchemaOptions, DocumentQuery} from "mongoose";
 import {Promise} from "es6-promise";
 import {Pagamento} from "../models/Pagamento";
-import {QueryRestriction} from "../utils/query/QueryRestriction";
+import {QueryRestriction} from "../utils/query/restriction/QueryRestriction";
 import {QueryRestrictionParser} from "../utils/query/QueryRestrictionParser";
-import {StatusPagamento} from "../models/StatusPagamento";
-import {Readable} from "stream";
-import {Stream} from "stream";
+import {StatusPagamentoHelper} from "../models/StatusPagamento";
 
 let schemaDefinition: SchemaDefinition = {
     status: {
         type: String,
-        enum: StatusPagamento.values()
+        enum: StatusPagamentoHelper.getAllValues()
     },
     dataCriacao: {
         type: Date,

@@ -1,5 +1,6 @@
-import {StatusPagamento} from "./StatusPagamento";
 import * as mongoose from "mongoose";
+import {StatusPagamento} from "./StatusPagamento";
+
 
 export interface Pagamento extends mongoose.Document {
     _id: string;

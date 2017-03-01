@@ -1,4 +1,4 @@
-import {QueryRestriction} from "./QueryRestriction";
+import {QueryRestriction} from "./restriction/QueryRestriction";
 import {Document, DocumentQuery} from "mongoose";
 
 export class QueryRestrictionParser<T extends Document> {

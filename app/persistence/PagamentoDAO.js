@@ -7,7 +7,7 @@ var StatusPagamento_1 = require("../models/StatusPagamento");
 var schemaDefinition = {
     status: {
         type: String,
-        enum: StatusPagamento_1.StatusPagamento.values()
+        enum: StatusPagamento_1.StatusPagamentoHelper.getAllValues()
     },
     dataCriacao: {
         type: Date,

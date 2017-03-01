@@ -2,7 +2,7 @@ import pagamentoDAO from "../persistence/PagamentoDAO";
 import {Pagamento} from "../models/Pagamento";
 import {StatusPagamento} from "../models/StatusPagamento";
 import {Restriction} from "../utils/restriction/Restriction";
-import {QueryInterpreter} from "../utils/query/QueryRestriction";
+import {QueryInterpreter} from "../utils/query/restriction/QueryRestriction";
 import reject = Promise.reject;
 
 class PagamentoService {

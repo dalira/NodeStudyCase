@@ -1,7 +1,7 @@
 "use strict";
 var PagamentoDAO_1 = require("../persistence/PagamentoDAO");
 var StatusPagamento_1 = require("../models/StatusPagamento");
-var QueryRestriction_1 = require("../utils/query/QueryRestriction");
+var QueryRestriction_1 = require("../utils/query/restriction/QueryRestriction");
 var PagamentoService = (function () {
     function PagamentoService() {
     }
